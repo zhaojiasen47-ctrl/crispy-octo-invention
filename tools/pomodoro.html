@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄钟</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:#f6f8fa; color:#24292f; }
+  .wrap { max-width:520px; margin:0 auto; padding:24px 16px 40px; }
+  a.back { color:#0969da; text-decoration:none; font-size:14px; }
+  h1 { font-size:22px; }
+  .card { background:#fff; border-radius:14px; padding:28px 20px; box-shadow:0 4px 16px rgba(0,0,0,.06); text-align:center; }
+  #clock { font-size:64px; font-weight:700; font-variant-numeric:tabular-nums; margin:10px 0 4px; }
+  #mode { color:#57606a; margin-bottom:14px; }
+  .modes, .ctrls { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  button { border:0; border-radius:8px; padding:11px 18px; font-size:15px; background:#eaeef2; cursor:pointer; }
+  button.on { background:#d1242f; color:#fff; }
+  .ctrls { margin-top:16px; }
+  #start { background:#0969da; color:#fff; min-width:110px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回工具箱</a>
+  <h1>🍅 番茄钟</h1>
+  <div class="card">
+    <div class="modes">
+      <button data-min="25" class="on">专注 25 分钟</button>
+      <button data-min="5">休息 5 分钟</button>
+      <button data-min="15">休息 15 分钟</button>
+    </div>
+    <div id="clock">25:00</div>
+    <div id="mode">准备开始</div>
+    <div class="ctrls">
+      <button id="start">开始</button>
+      <button id="reset">重置</button>
+    </div>
+  </div>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  let total = 25*60, left = total, timer = null;
+  function show(){
+    const m = String(Math.floor(left/60)).padStart(2,"0"), s = String(left%60).padStart(2,"0");
+    $("clock").textContent = `${m}:${s}`;
+    document.title = `${m}:${s} · 番茄钟`;
+  }
+  function beep(){
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, .25, .5].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.setValueAtTime(.15, ctx.currentTime + d); o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .2); });
+    } catch(e){}
+  }
+  function stop(){ clearInterval(timer); timer = null; $("start").textContent = "开始"; }
+  $("start").onclick = () => {
+    if (timer) { stop(); $("mode").textContent = "已暂停"; return; }
+    $("mode").textContent = "计时中…";
+    $("start").textContent = "暂停";
+    timer = setInterval(() => {
+      left--; show();
+      if (left <= 0) { stop(); $("mode").textContent = "时间到！🎉"; beep(); }
+    }, 1000);
+  };
+  $("reset").onclick = () => { stop(); left = total; $("mode").textContent = "准备开始"; show(); };
+  document.querySelectorAll(".modes button").forEach(b => b.onclick = () => {
+    document.querySelectorAll(".modes button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); total = +b.dataset.min * 60; $("reset").onclick();
+  });
+  show();
+</script>
+</body>
+</html>

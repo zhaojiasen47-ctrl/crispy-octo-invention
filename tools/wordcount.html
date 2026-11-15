@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字数统计</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:#f6f8fa; color:#24292f; }
+  .wrap { max-width:520px; margin:0 auto; padding:24px 16px 40px; }
+  a.back { color:#0969da; text-decoration:none; font-size:14px; }
+  h1 { font-size:22px; }
+  .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+  textarea { width:100%; box-sizing:border-box; padding:12px; border:1px solid #d0d7de; border-radius:8px; font-size:15px; min-height:180px; line-height:1.6; }
+  .stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:14px; }
+  .stat { background:#f6f8fa; border-radius:10px; padding:12px; text-align:center; }
+  .stat .n { font-size:20px; font-weight:700; }
+  .stat .t { font-size:12px; color:#57606a; margin-top:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回工具箱</a>
+  <h1>📝 字数统计</h1>
+  <div class="card">
+    <textarea id="text" placeholder="把文字粘贴到这里，边输边统计"></textarea>
+    <div class="stats">
+      <div class="stat"><div class="n" id="s1">0</div><div class="t">总字符</div></div>
+      <div class="stat"><div class="n" id="s2">0</div><div class="t">不含空格</div></div>
+      <div class="stat"><div class="n" id="s3">0</div><div class="t">中文字数</div></div>
+      <div class="stat"><div class="n" id="s4">0</div><div class="t">英文单词</div></div>
+      <div class="stat"><div class="n" id="s5">0</div><div class="t">行数</div></div>
+      <div class="stat"><div class="n" id="s6">0</div><div class="t">段落数</div></div>
+    </div>
+  </div>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  function count(){
+    const t = $("text").value;
+    $("s1").textContent = t.length;
+    $("s2").textContent = t.replace(/\s/g,"").length;
+    $("s3").textContent = (t.match(/[\u4e00-\u9fa5]/g) || []).length;
+    $("s4").textContent = (t.match(/[A-Za-z]+/g) || []).length;
+    $("s5").textContent = t === "" ? 0 : t.split(/\n/).length;
+    $("s6").textContent = t.trim() === "" ? 0 : t.split(/\n\s*\n/).filter(x=>x.trim()).length;
+  }
+  $("text").addEventListener("input", count);
+</script>
+</body>
+</html>

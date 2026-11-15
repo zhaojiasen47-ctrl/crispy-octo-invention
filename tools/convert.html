@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单位换算</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:#f6f8fa; color:#24292f; }
+  .wrap { max-width:520px; margin:0 auto; padding:24px 16px 40px; }
+  a.back { color:#0969da; text-decoration:none; font-size:14px; }
+  h1 { font-size:22px; }
+  .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+  select, input { width:100%; box-sizing:border-box; padding:11px; border:1px solid #d0d7de; border-radius:8px; font-size:16px; margin:6px 0 12px; }
+  .eq { text-align:center; font-size:20px; color:#57606a; margin:2px 0; }
+  #result { font-size:20px; font-weight:600; text-align:center; padding:14px; background:#f6f8fa; border-radius:8px; }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tabs button { flex:1; padding:10px; border:0; border-radius:8px; background:#eaeef2; font-size:15px; cursor:pointer; }
+  .tabs button.on { background:#0969da; color:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回工具箱</a>
+  <h1>🔄 单位换算</h1>
+  <div class="card">
+    <div class="tabs">
+      <button data-cat="length" class="on">长度</button>
+      <button data-cat="weight">重量</button>
+      <button data-cat="temp">温度</button>
+    </div>
+    <input type="number" id="val" value="1" step="any">
+    <select id="from"></select>
+    <div class="eq">↓ 换算 ↓</div>
+    <select id="to"></select>
+    <div id="result">—</div>
+  </div>
+</div>
+<script>
+  const UNITS = {
+    length: { base:"米", units:{ "千米":1000, "米":1, "厘米":0.01, "毫米":0.001, "英里":1609.344, "英尺":0.3048, "英寸":0.0254 } },
+    weight: { base:"千克", units:{ "吨":1000, "千克":1, "克":0.001, "斤":0.5, "磅":0.45359237 } },
+    temp:   { base:"摄氏度", units:{ "摄氏度":"C", "华氏度":"F", "开尔文":"K" } }
+  };
+  let cat = "length";
+  const $ = id => document.getElementById(id);
+  function fill(){
+    const names = Object.keys(UNITS[cat].units);
+    $("from").innerHTML = names.map(n=>`<option>${n}</option>`).join("");
+    $("to").innerHTML = names.map(n=>`<option>${n}</option>`).join("");
+    $("to").selectedIndex = names.length > 1 ? 1 : 0;
+    calc();
+  }
+  function toC(v,u){ return u==="C"?v : u==="F" ? (v-32)*5/9 : v-273.15; }
+  function fromC(v,u){ return u==="C"?v : u==="F" ? v*9/5+32 : v+273.15; }
+  function calc(){
+    const v = parseFloat($("val").value);
+    if (isNaN(v)) { $("result").textContent = "—"; return; }
+    const f = $("from").value, t = $("to").value, U = UNITS[cat].units;
+    let r;
+    if (cat === "temp") r = fromC(toC(v, U[f]), U[t]);
+    else r = v * U[f] / U[t];
+    const s = Math.abs(r) >= 1000 || (Math.abs(r) < 0.01 && r !== 0) ? r.toExponential(4) : +r.toFixed(6);
+    $("result").textContent = `${v} ${f} = ${s} ${t}`;
+  }
+  document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+    document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); cat = b.dataset.cat; fill();
+  });
+  ["val","from","to"].forEach(id => $(id).addEventListener("input", calc));
+  fill();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二维码生成器</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:#f6f8fa; color:#24292f; }
+  .wrap { max-width:520px; margin:0 auto; padding:24px 16px 40px; }
+  a.back { color:#0969da; text-decoration:none; font-size:14px; }
+  h1 { font-size:22px; }
+  .card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); text-align:center; }
+  textarea { width:100%; box-sizing:border-box; padding:10px; border:1px solid #d0d7de; border-radius:8px; font-size:15px; min-height:64px; text-align:left; }
+  button, a.btn { display:inline-block; background:#0969da; color:#fff; border:0; border-radius:8px; padding:12px 18px; font-size:16px; margin-top:14px; cursor:pointer; text-decoration:none; }
+  a.btn.ghost { background:#eaeef2; color:#24292f; }
+  #qr { margin:20px auto 4px; width:220px; height:220px; display:flex; align-items:center; justify-content:center; }
+  #qr img, #qr canvas { max-width:220px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回工具箱</a>
+  <h1>🔳 二维码生成器</h1>
+  <div class="card">
+    <textarea id="text" placeholder="输入网址或文字，例如 https://www.google.com"></textarea>
+    <button id="gen">生成二维码</button>
+    <div id="qr"><span style="color:#8b949e;font-size:14px;">二维码会显示在这里</span></div>
+    <a class="btn ghost" id="dl" style="display:none;">下载图片</a>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  $("gen").onclick = () => {
+    const t = $("text").value.trim();
+    if (!t) { alert("先输入点内容"); return; }
+    $("qr").innerHTML = "";
+    new QRCode($("qr"), { text: t, width: 220, height: 220 });
+    setTimeout(() => {
+      const img = $("qr").querySelector("img"), canvas = $("qr").querySelector("canvas");
+      const url = img && img.src ? img.src : (canvas ? canvas.toDataURL("image/png") : "");
+      if (url) { $("dl").href = url; $("dl").download = "qrcode.png"; $("dl").style.display = "inline-block"; }
+    }, 100);
+  };
+</script>
+</body>
+</html>
